@@ -1,0 +1,606 @@
+<!DOCTYPE html><html lang="zh-TW"><head>
+<meta charset="utf-8">
+<meta content="width=device-width, initial-scale=1.0" name="viewport">
+<meta content="web_standard" name="shell-type">
+<title>DevPortfolio — 系統架構、編譯器與 Local-First 技術體系</title>
+<link href="https://fonts.googleapis.com" rel="preconnect">
+<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;family=JetBrains+Mono:wght@400;500;600&amp;display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#eef2ff',
+              100: '#e0e7ff',
+              500: '#6366f1',
+              600: '#4f46e5',
+              700: '#4338ca'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace']
+          }
+        }
+      }
+    };
+  </script>
+<style>
+    @layer base {
+      html, body {
+        margin: 0;
+        padding: 0;
+        background-color: #f8fafc;
+      }
+      body {
+        overscroll-behavior: none;
+      }
+    }
+    ::-webkit-scrollbar {
+      display: none;
+    }
+  </style>
+</head>
+<body class="bg-slate-50 font-sans text-[15px] text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-900">
+<!-- Navigation Header -->
+<header class="fixed top-0 left-0 w-full z-50 bg-white/80 backdrop-blur-md border-b border-slate-200 shadow-sm">
+<div class="h-16 max-w-[1200px] mx-auto px-6 flex items-center justify-between gap-4"><div class="flex items-center gap-4 flex-1">
+<a class="flex items-center gap-2 group" data-path="portfolio-home" href="#">
+<div class="w-8 h-8 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 transition-all group-hover:bg-indigo-600 group-hover:text-white shadow-xs">
+<span class="material-symbols-outlined text-[18px]">terminal</span>
+</div>
+<div class="flex items-baseline font-bold text-lg tracking-tight text-slate-900">
+DevPortfolio<span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-600 ml-0.5"></span>
+</div>
+</a>
+<div class="hidden sm:flex items-center gap-2 px-2.5 py-1 rounded-full bg-emerald-50 border border-emerald-200/60">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-500 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-600"></span>
+</span>
+<span class="font-medium text-xs text-emerald-700">目前可承接專案</span>
+</div>
+</div>
+<nav class="hidden md:flex items-center justify-center gap-8 text-sm font-medium flex-1">
+<a class="text-slate-600 hover:text-slate-900 transition-colors pb-0.5" data-path="portfolio-home" href="#">首頁</a>
+<a class="text-slate-600 hover:text-slate-900 transition-colors pb-0.5" data-path="about" href="#about">關於我</a>
+<a class="text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-0.5" data-path="projects" href="#projects">作品集</a>
+</nav>
+<div class="flex items-center justify-end gap-3 flex-1">
+<a class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold shadow-xs transition-colors" href="mailto:contact@devportfolio.com">
+<span class="material-symbols-outlined text-[16px]">mail</span>
+<span class="">聯絡我</span>
+</a>
+</div></div>
+</header>
+<main class="w-full pt-16 bg-slate-50 min-h-[calc(100vh-16rem)]">
+<div class="flex flex-col w-full">
+<!-- Ambient Clean Backdrop Layer -->
+<div class="relative w-full overflow-hidden pb-16">
+<div class="absolute -top-40 left-1/2 -translate-x-1/2 w-[900px] h-[380px] bg-gradient-to-b from-indigo-100/70 via-sky-50/50 to-transparent blur-[100px] pointer-events-none -z-0"></div>
+<div class="absolute top-96 right-0 w-[450px] h-[450px] bg-indigo-50/60 blur-[120px] pointer-events-none -z-0"></div>
+<div class="max-w-[1200px] mx-auto px-6 pt-10 relative z-10 flex flex-col gap-10">
+<!-- ========================================== -->
+<!-- 1. HERO HEADER: Engineering Artifacts & Ship Logs -->
+<!-- ========================================== -->
+<section class="flex flex-col gap-6">
+<div class="flex flex-wrap items-center justify-between gap-4">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 shadow-xs">
+<span class="relative flex h-2 w-2">
+<span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-indigo-500 opacity-75"></span>
+<span class="relative inline-flex rounded-full h-2 w-2 bg-indigo-600"></span>
+</span>
+<span class="font-mono text-xs uppercase tracking-wider font-semibold text-indigo-700">工程構建成果與交付紀錄</span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-xs text-slate-500 bg-white border border-slate-200 px-3 py-1 rounded-lg shadow-xs">
+<span class="material-symbols-outlined text-[15px] text-indigo-600">deployed_code</span>
+<span class="">SYSTEM_SPEC_VER: 2025.4.19</span>
+</div>
+</div>
+<div class="flex flex-col gap-3 max-w-[960px]">
+<h1 class="text-4xl sm:text-5xl lg:text-[54px] font-extrabold tracking-tight text-slate-900 leading-tight">
+                為規模化而架構， <br class="hidden sm:inline">
+<span class="bg-gradient-to-r from-indigo-600 via-indigo-700 to-sky-600 bg-clip-text text-transparent">為極致精確而工程設計。</span>
+</h1>
+<p class="text-base sm:text-lg text-slate-600 max-w-[820px] leading-relaxed">
+                深入剖析自主可視化圖形執行環境、分散式 ClickHouse 資料寫入叢集、Local-First CRDT 對等引擎，以及為全球規模量身打造的亞毫秒級 AST 編譯器技術實踐。
+              </p>
+</div>
+<!-- Filter & Search Command Ribbon -->
+<div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 pt-2">
+<!-- Filter Tabs -->
+<div class="flex items-center gap-2 overflow-x-auto pb-1" id="productFilterBar">
+<button class="filter-btn active px-3.5 py-1.5 rounded-lg bg-indigo-600 text-white font-medium text-sm shadow-sm transition-all flex items-center gap-1.5" data-filter="all">
+<span class="">所有系統</span>
+<span class="px-1.5 py-0.5 rounded-full bg-indigo-700/60 font-mono text-[10px] text-white">6</span>
+</button>
+<button class="filter-btn px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-medium text-sm border border-slate-200 transition-all flex items-center gap-1.5" data-filter="ai">
+<span class="">AI 與工作流</span>
+<span class="px-1.5 py-0.5 rounded-full bg-slate-100 font-mono text-[10px] text-slate-600">1</span>
+</button>
+<button class="filter-btn px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-medium text-sm border border-slate-200 transition-all flex items-center gap-1.5" data-filter="telemetry">
+<span class="">遙測與雲端</span>
+<span class="px-1.5 py-0.5 rounded-full bg-slate-100 font-mono text-[10px] text-slate-600">2</span>
+</button>
+<button class="filter-btn px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-medium text-sm border border-slate-200 transition-all flex items-center gap-1.5" data-filter="devtools">
+<span class="">開發者工具</span>
+<span class="px-1.5 py-0.5 rounded-full bg-slate-100 font-mono text-[10px] text-slate-600">2</span>
+</button>
+<button class="filter-btn px-3.5 py-1.5 rounded-lg bg-white hover:bg-slate-100 text-slate-600 hover:text-slate-900 font-medium text-sm border border-slate-200 transition-all flex items-center gap-1.5" data-filter="graphics">
+<span class="">圖形渲染與 UI</span>
+<span class="px-1.5 py-0.5 rounded-full bg-slate-100 font-mono text-[10px] text-slate-600">1</span>
+</button>
+</div>
+<!-- Search & Sort Controls -->
+<div class="flex items-center gap-2.5">
+<div class="relative flex-1 sm:w-64">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-[18px]">search</span>
+<input class="w-full bg-white text-slate-900 placeholder:text-slate-400 text-sm pl-9 pr-3 py-1.5 rounded-lg border border-slate-200 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition-all" id="projectSearch" placeholder="搜尋架構、技術棧..." type="text">
+</div>
+<div class="relative">
+<select class="appearance-none bg-white text-slate-800 font-medium text-sm py-1.5 pl-3 pr-8 rounded-lg border border-slate-200 outline-none cursor-pointer hover:border-slate-300 transition-colors focus:border-indigo-500" id="projectSort">
+<option value="impact">排序：影響力與星標</option>
+<option value="recent">排序：最新交付發布</option>
+<option value="throughput">排序：P99 吞吐量性能</option>
+</select>
+<span class="material-symbols-outlined absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none text-slate-400 text-[16px]">expand_more</span>
+</div>
+</div>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- 2. FLAGSHIP ARCHITECTURAL SHOWCASE: NexusFlow -->
+<!-- ========================================== -->
+<section class="flex flex-col gap-3" data-category="ai">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-1.5 font-mono text-xs uppercase tracking-wider text-indigo-700 font-semibold">
+
+
+</div>
+
+</div>
+
+</section>
+<!-- ========================================== -->
+<!-- 3. CORE PRODUCTS & PROJECTS GRID -->
+<!-- ========================================== -->
+<section class="flex flex-col gap-6" id="projects">
+<div class="flex flex-col sm:flex-row sm:items-end justify-between gap-1">
+<div>
+<div class="font-mono text-xs uppercase tracking-wider text-indigo-700 font-semibold mb-1">獨立引擎作品庫</div>
+<h2 class="text-2xl sm:text-3xl font-bold text-slate-900">系統架構、編譯器與 Local-First 技術體系</h2>
+</div>
+<span class="font-mono text-xs text-slate-500">已索引 5 大核心程式碼倉庫</span>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" id="projectsContainer">
+<!-- PROJECT 2: CloudPulse -->
+<article class="project-card flex flex-col justify-between bg-white rounded-xl p-6 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group" data-category="telemetry" data-stars="3400" data-throughput="45">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+<span class="material-symbols-outlined text-[22px]">query_stats</span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                      ClickHouse 引擎
+                    </div>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">CloudPulse</h3>
+<p class="text-xs text-slate-500 font-medium">高吞吐量分散式遙測與異常指標聚合器</p>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                    每日穩定寫入超過 5000 萬筆事件，結合列式存儲聚合、亞秒級向量異常檢測以及即時自動化 WebSocket 推送管線。
+                  </p>
+<!-- Metric Badges -->
+<div class="grid grid-cols-2 gap-2 py-1">
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">每日吞吐量</span>
+<span class="font-mono text-sm text-slate-900 font-bold">50M+ 事件/日</span>
+</div>
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">P95 延遲</span>
+<span class="font-mono text-sm text-indigo-600 font-bold">&lt; 45ms 查詢</span>
+</div>
+</div>
+<!-- Tech Stack Badges -->
+<div class="flex flex-wrap gap-1.5">
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Next.js 14</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">ClickHouse</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Rust Worker</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">WebSockets</span>
+</div>
+</div>
+<!-- Card Footer -->
+<div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between">
+<span class="font-mono text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-amber-500">star</span> 3.4k
+                  </span>
+<a class="inline-flex items-center gap-1 font-semibold text-sm text-indigo-600 hover:text-indigo-800 transition-colors" href="#cloudpulse">
+<span class="">檢視系統架構</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- PROJECT 3: DevSync -->
+<article class="project-card flex flex-col justify-between bg-white rounded-xl p-6 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group" data-category="devtools" data-stars="2100" data-throughput="2">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+<span class="material-symbols-outlined text-[22px]">sync_saved_locally</span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                      P2P Local-First
+                    </div>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">DevSync</h3>
+<p class="text-xs text-slate-500 font-medium">點對點 CRDT Markdown 協同編輯畫布</p>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                    完全脫離雲端伺服器的文檔同步架構，直接運行於 WebRTC 資料通道，具備 IndexedDB 狀態快照與加密房間雜湊驗證機制。
+                  </p>
+<!-- Metric Badges -->
+<div class="grid grid-cols-2 gap-2 py-1">
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">資料加密</span>
+<span class="font-mono text-sm text-slate-900 font-bold">端對端 E2EE</span>
+</div>
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">儲存策略</span>
+<span class="font-mono text-sm text-indigo-600 font-bold">零雲端綁定</span>
+</div>
+</div>
+<!-- Tech Stack Badges -->
+<div class="flex flex-wrap gap-1.5">
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Yjs CRDT</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">WebRTC</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">IndexedDB</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Tailwind</span>
+</div>
+</div>
+<!-- Card Footer -->
+<div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between">
+<span class="font-mono text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-amber-500">star</span> 2.1k
+                  </span>
+<a class="inline-flex items-center gap-1 font-semibold text-sm text-indigo-600 hover:text-indigo-800 transition-colors" href="#devsync">
+<span class="">檢驗 P2P 網狀拓撲</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- PROJECT 4: SpectraGL -->
+<article class="project-card flex flex-col justify-between bg-white rounded-xl p-6 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group" data-category="graphics" data-stars="1950" data-throughput="8">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+<span class="material-symbols-outlined text-[22px]">view_in_ar</span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                      GPU 著色器系統
+                    </div>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">SpectraGL</h3>
+<p class="text-xs text-slate-500 font-medium">響應式 WebGL 著色器與互動式流體力學框架</p>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                    硬體加速的 Navier-Stokes 流體模擬與程序化後製效果庫，編譯為超輕量、具備響應式特性的 WebAssembly 核心模組。
+                  </p>
+<!-- Metric Badges -->
+<div class="grid grid-cols-2 gap-2 py-1">
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">螢幕刷新率</span>
+<span class="font-mono text-sm text-slate-900 font-bold">行動端 120 FPS</span>
+</div>
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">打包體積</span>
+<span class="font-mono text-sm text-indigo-600 font-bold">14.2 KB Gzip</span>
+</div>
+</div>
+<!-- Tech Stack Badges -->
+<div class="flex flex-wrap gap-1.5">
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Three.js</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">GLSL 3.0</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">WebAssembly</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">TypeScript</span>
+</div>
+</div>
+<!-- Card Footer -->
+<div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between">
+<span class="font-mono text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-amber-500">star</span> 1.9k
+                  </span>
+<a class="inline-flex items-center gap-1 font-semibold text-sm text-indigo-600 hover:text-indigo-800 transition-colors" href="#spectragl">
+<span class="">探索 GLSL 著色器</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- PROJECT 5: TypeRoute -->
+<article class="project-card flex flex-col justify-between bg-white rounded-xl p-6 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group" data-category="devtools" data-stars="1680" data-throughput="3">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+<span class="material-symbols-outlined text-[22px]">alt_route</span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                      編譯期閘道
+                    </div>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">TypeRoute</h3>
+<p class="text-xs text-slate-500 font-medium">編譯期型別安全微前端閘道與路由系統</p>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                    以 Rust AST 靜態型別生成取代臃腫的執行期反向代理，在部署前嚴格校驗多微前端應用的全域路由清單一致性。
+                  </p>
+<!-- Metric Badges -->
+<div class="grid grid-cols-2 gap-2 py-1">
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">冷啟動速度</span>
+<span class="font-mono text-sm text-slate-900 font-bold">加速 10 倍</span>
+</div>
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">驗證機制</span>
+<span class="font-mono text-sm text-indigo-600 font-bold">Strict AST TS</span>
+</div>
+</div>
+<!-- Tech Stack Badges -->
+<div class="flex flex-wrap gap-1.5">
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Rust</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Bun Runtime</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">TypeScript AST</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Docker</span>
+</div>
+</div>
+<!-- Card Footer -->
+<div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between">
+<span class="font-mono text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-amber-500">star</span> 1.6k
+                  </span>
+<a class="inline-flex items-center gap-1 font-semibold text-sm text-indigo-600 hover:text-indigo-800 transition-colors" href="#typeroute">
+<span class="">檢視 Rust 管線</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+<!-- PROJECT 6: Hyperion System -->
+<article class="project-card flex flex-col justify-between bg-white rounded-xl p-6 border border-slate-200 hover:border-slate-300 hover:shadow-md transition-all group md:col-span-2 lg:col-span-2" data-category="graphics" data-stars="1420" data-throughput="1">
+<div class="flex flex-col gap-4">
+<div class="flex items-center justify-between">
+<div class="w-10 h-10 rounded-lg bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-all shadow-xs">
+<span class="material-symbols-outlined text-[22px]">widgets</span>
+</div>
+<div class="flex items-center gap-1.5 font-mono text-xs text-indigo-700 bg-indigo-50 border border-indigo-100 px-2.5 py-0.5 rounded-full font-medium">
+<span class="w-1.5 h-1.5 rounded-full bg-indigo-600"></span>
+                      設計系統
+                    </div>
+</div>
+<div class="flex flex-col gap-1">
+<h3 class="text-xl font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">Hyperion 元件引擎</h3>
+<p class="text-xs text-slate-500 font-medium">支援多品牌與 WCAG AAA 無障礙規範的設計 Token 架構</p>
+</div>
+<p class="text-sm text-slate-600 leading-relaxed">
+                    零執行期開銷的 CSS 變數 Token 編譯器，為 Web 與原生跨平台端點生成強型別樣式原語，並內建對比度自動化審查機制。
+                  </p>
+<!-- Metric Badges -->
+<div class="grid grid-cols-1 sm:grid-cols-3 gap-2 py-1">
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">無障礙審查</span>
+<span class="font-mono text-sm text-slate-900 font-bold">100% WCAG AAA</span>
+</div>
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">企業採用規模</span>
+<span class="font-mono text-sm text-indigo-600 font-bold">4 個正式環境平台</span>
+</div>
+<div class="bg-slate-50 border border-slate-200/80 p-2.5 rounded-lg flex flex-col">
+<span class="font-mono text-[10px] text-slate-500 uppercase">Token 執行期開銷</span>
+<span class="font-mono text-sm text-sky-600 font-bold">0.00ms Overhead</span>
+</div>
+</div>
+<!-- Tech Stack Badges -->
+<div class="flex flex-wrap gap-1.5">
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Radix UI</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">CSS Custom Props</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">Storybook 8</span>
+<span class="text-xs font-medium px-2.5 py-0.5 rounded-md bg-slate-100 text-slate-700">PostCSS AST</span>
+</div>
+</div>
+<!-- Card Footer -->
+<div class="mt-6 pt-3 border-t border-slate-100 flex items-center justify-between">
+<span class="font-mono text-xs text-slate-500 flex items-center gap-1">
+<span class="material-symbols-outlined text-[15px] text-amber-500">star</span> 1.4k
+                  </span>
+<a class="inline-flex items-center gap-1 font-semibold text-sm text-indigo-600 hover:text-indigo-800 transition-colors" href="#hyperion">
+<span class="">開啟元件試驗場</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</a>
+</div>
+</article>
+</div>
+</section>
+<!-- ========================================== -->
+<!-- 4. ENGINEERING PHILOSOPHY & SYSTEM ARCHITECTURE -->
+<!-- ========================================== -->
+<section class="flex flex-col gap-6 pt-4">
+<div class="flex flex-col gap-1 max-w-[800px]">
+
+
+
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+<!-- Pillar 1 -->
+
+<!-- Pillar 2 -->
+
+<!-- Pillar 3 -->
+
+</div>
+</section>
+<!-- ========================================== -->
+<!-- 5. OPEN SOURCE IMPACT & METRICS COUNTER -->
+<!-- ========================================== -->
+
+<!-- ========================================== -->
+<!-- 6. BOTTOM CALL TO ACTION & CONSULTATION -->
+<!-- ========================================== -->
+
+</div>
+</div>
+</div>
+</main>
+<footer class="w-full bg-white border-t border-slate-200 py-10">
+<div class="max-w-[1200px] mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+<div class="flex flex-col gap-1">
+<div class="flex items-baseline justify-center md:justify-start font-bold text-lg text-slate-900">
+          DevPortfolio<span class="inline-block w-1.5 h-1.5 rounded-full bg-indigo-600 ml-0.5"></span>
+</div>
+<p class="text-xs text-slate-500">© 2025 DevPortfolio. 保留所有權利。</p>
+</div>
+<div class="flex items-center gap-2 px-3 py-1.5 rounded-full bg-slate-50 border border-slate-200">
+<span class="material-symbols-outlined text-indigo-600 text-[16px]">code</span>
+<span class="font-mono text-xs text-slate-600">使用 Next.js、Tailwind CSS 與 Framer Motion 構建</span>
+</div>
+<div class="flex items-center gap-3">
+<a aria-label="代碼倉庫" class="w-9 h-9 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 flex items-center justify-center text-slate-500 transition-all shadow-xs" href="https://github.com" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">terminal</span>
+</a>
+<a aria-label="專業社群" class="w-9 h-9 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 flex items-center justify-center text-slate-500 transition-all shadow-xs" href="https://linkedin.com" rel="noreferrer" target="_blank">
+<span class="material-symbols-outlined text-[20px]">hub</span>
+</a>
+<a aria-label="電子郵件" class="w-9 h-9 rounded-lg bg-white border border-slate-200 hover:border-indigo-400 hover:text-indigo-600 flex items-center justify-center text-slate-500 transition-all shadow-xs" href="mailto:contact@devportfolio.com">
+<span class="material-symbols-outlined text-[20px]">alternate_email</span>
+</a>
+</div>
+</div>
+</footer>
+<script>
+    // Interactive Filter & Search Orchestration
+    document.addEventListener('DOMContentLoaded', () => {
+      const filterButtons = document.querySelectorAll('#productFilterBar .filter-btn');
+      const projectCards = document.querySelectorAll('#projectsContainer .project-card');
+      const searchInput = document.getElementById('projectSearch');
+      const sortDropdown = document.getElementById('projectSort');
+      const flagshipSection = document.querySelector('[data-category="ai"]');
+
+      function applyFilters() {
+        const activeBtn = document.querySelector('#productFilterBar .filter-btn.active');
+        const activeFilter = activeBtn ? activeBtn.dataset.filter : 'all';
+        const searchTerm = (searchInput?.value || '').toLowerCase().trim();
+
+        // Handle Flagship visibility
+        if (flagshipSection) {
+          const matchesCategory = activeFilter === 'all' || activeFilter === 'ai';
+          const matchesSearch = !searchTerm || 'nexusflow visual agent wasm crdt webgl orchestrator 自主 視覺化 調度 代理人'.toLowerCase().includes(searchTerm);
+          flagshipSection.style.display = matchesCategory && matchesSearch ? 'flex' : 'none';
+        }
+
+        projectCards.forEach(card => {
+          const category = card.dataset.category || '';
+          const cardText = card.innerText.toLowerCase();
+
+          const matchesCategory = (activeFilter === 'all') || (category === activeFilter);
+          const matchesSearch = !searchTerm || cardText.includes(searchTerm);
+
+          if (matchesCategory && matchesSearch) {
+            card.style.display = 'flex';
+          } else {
+            card.style.display = 'none';
+          }
+        });
+      }
+
+      filterButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          filterButtons.forEach(b => {
+            b.classList.remove('active', 'bg-indigo-600', 'text-white', 'shadow-sm');
+            b.classList.add('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+            const badge = b.querySelector('span:last-child');
+            if (badge) {
+              badge.classList.remove('bg-indigo-700/60', 'text-white');
+              badge.classList.add('bg-slate-100', 'text-slate-600');
+            }
+          });
+
+          btn.classList.add('active', 'bg-indigo-600', 'text-white', 'shadow-sm');
+          btn.classList.remove('bg-white', 'text-slate-600', 'border', 'border-slate-200');
+          const activeBadge = btn.querySelector('span:last-child');
+          if (activeBadge) {
+            activeBadge.classList.add('bg-indigo-700/60', 'text-white');
+            activeBadge.classList.remove('bg-slate-100', 'text-slate-600');
+          }
+
+          applyFilters();
+        });
+      });
+
+      if (searchInput) {
+        searchInput.addEventListener('input', applyFilters);
+      }
+
+      if (sortDropdown) {
+        sortDropdown.addEventListener('change', () => {
+          const val = sortDropdown.value;
+          const container = document.getElementById('projectsContainer');
+          const cardsArray = Array.from(projectCards);
+
+          cardsArray.sort((a, b) => {
+            if (val === 'impact') {
+              return (parseInt(b.dataset.stars) || 0) - (parseInt(a.dataset.stars) || 0);
+            } else if (val === 'throughput') {
+              return (parseInt(a.dataset.throughput) || 0) - (parseInt(b.dataset.throughput) || 0);
+            }
+            return 0;
+          });
+
+          cardsArray.forEach(card => container.appendChild(card));
+        });
+      }
+
+      // Interactive NexusFlow Telemetry Tabs
+      const tabs = document.querySelectorAll('#nexusTabNav .nexus-tab');
+      const viewTopology = document.getElementById('view-topology');
+      const viewPerf = document.getElementById('view-perf');
+      const viewLogs = document.getElementById('view-logs');
+
+      tabs.forEach(tab => {
+        tab.addEventListener('click', () => {
+          tabs.forEach(t => {
+            t.classList.remove('active', 'text-indigo-600', 'font-semibold', 'bg-white', 'border-t', 'border-x', 'border-slate-200');
+            t.classList.add('text-slate-500');
+          });
+          tab.classList.add('active', 'text-indigo-600', 'font-semibold', 'bg-white', 'border-t', 'border-x', 'border-slate-200');
+          tab.classList.remove('text-slate-500');
+
+          const view = tab.dataset.view;
+          if (viewTopology) viewTopology.style.display = view === 'topology' ? 'flex' : 'none';
+          if (viewPerf) viewPerf.style.display = view === 'perf' ? 'flex' : 'none';
+          if (viewLogs) viewLogs.style.display = view === 'logs' ? 'flex' : 'none';
+        });
+      });
+    });
+  </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</body></html>
